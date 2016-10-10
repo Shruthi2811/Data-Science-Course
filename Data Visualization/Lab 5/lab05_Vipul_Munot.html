@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Page Title</title>
+</head>
+<body>
+<h1>Vipul Munot</h1><h2>Data Visualization</h2>
+<h3>Lab 05</h3>
+<p>Desired Output: </p>
+Enter first number:<input type="text" id="txt1" name="text1"><br/>
+<br/>Enter second number:<input type="text" id="txt2" name="text2">
+<p id="output"></p>
+<button onclick="adder()">Submit</button>
+<script>
+  function adder() {
+    var y = parseInt(document.getElementById("txt1").value);
+    var z = parseInt(document.getElementById("txt2").value);
+    var x = +y + +z;
+    document.getElementById("output").innerHTML = x;
+  }
+</script>
+</body>
+</html>

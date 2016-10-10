@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Page Title</title>
+</head>
+<body>
+<h1>Vipul Munot</h1><h2>Data Visualization</h2>
+<h3>Lab 05</h3>
+<p>Desired Output:To reset the addition after 100. </p>
+Enter first number:<input type="text" id="txt1" name="text1"><br/>
+<br/>Enter second number:<input type="text" id="txt2" name="text2">
+<p id="output"></p>
+<p id="remark"></p>
+<p id="addlist"></p>
+<button onclick="adder()">Submit</button>
+<script>
+  function adder() {
+    var a = parseInt(document.getElementById("output").value);
+	var y = parseInt(document.getElementById("txt1").value);
+    var z = parseInt(document.getElementById("txt2").value);
+    var x = +y + +z;
+	document.getElementById("output").innerHTML = "Current Total of num1 and num2: " + x;
+    if(typeof(Storage) !== "undefined") {
+        if (sessionStorage.clickcount) {
+		sessionStorage.clickcount = Number(sessionStorage.clickcount)+x;
+        }
+		if (sessionStorage.clickcount >=100 || sessionStorage.clickcount == null){
+            sessionStorage.clickcount = x;
+			document.getElementById("remark").innerHTML = "Following value has been reset as the summation is greater than 100. Process will reset.";
+        }
+        document.getElementById("addlist").innerHTML = "Total of all numbers " + sessionStorage.clickcount;
+		
+    } else {
+        document.getElementById("addlist").innerHTML = "Sorry, your browser does not support web storage...";
+    }
+
+  }
+</script>
+</body>
+</html>
+
+
