@@ -6,4 +6,4 @@
 3. Anirudh K Muralidhar
 
 ###Data Set: 
-kaggle.com/c/kobe-bryant-shot-selection/
+[a link] (https://www.kaggle.com/c/kobe-bryant-shot-selection/)
