@@ -6,6 +6,3 @@ Team Members:
 3. Anirudh K Muralidhar
 
 Data Set: kaggle.com/c/kobe-bryant-shot-selection/
-1. Item 1
-2. Item 2
-3. Item 3
