@@ -1,237 +1,130 @@
-/**
- * Created by Vipul Munot on 10/9/2016.
- */
+package Assignment2;
+
 import java.io.*;
 import java.nio.file.Paths;
-import org.apache.lucene.search.*;
-import org.apache.lucene.index.*;
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.queryparser.classic.*;
-import org.apache.lucene.search.similarities.*;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.benchmark.quality.*;
+import org.apache.lucene.benchmark.quality.trec.TrecTopicsReader;
+import org.apache.lucene.index.*;
+import org.apache.lucene.queryparser.classic.*;
+import org.apache.lucene.queryparser.flexible.standard.QueryParserUtil;
+import org.apache.lucene.search.*;
+import org.apache.lucene.search.similarities.*;
+import org.apache.lucene.store.FSDirectory;
 
-public class compareAlgorithms {
 
-    final String OpenTag = "<top>";
-    final String closeTag = "</top>";
-    FileWriter shortDesc;
-    FileWriter longDesc;
-    IndexReader reader;
-    IndexSearcher indexSearch;
-    Analyzer analyzer;
-    QueryParser parser;
+public class CompareAlgorithms {
 
-    private BufferedReader textReader;
+	public static void write_files(TopDocs topDocs, IndexSearcher indexSearcher, String queryID, String outputFilePath) throws IOException
+	{
+		File outputFile = new File(outputFilePath);
+		outputFile.getParentFile().mkdirs();
+		if(outputFile.exists() == false)
+		{
+			outputFile.createNewFile();
+		}
+		FileWriter fileWriter = new FileWriter(outputFile, true);
+		
+		ScoreDoc[] scoreDocs = topDocs.scoreDocs;
+		
+		for(int docIndex = 0; docIndex < scoreDocs.length; docIndex++)
+		{
+			ScoreDoc scoreDoc = scoreDocs[docIndex];
+			String docNo = indexSearcher.doc(scoreDoc.doc).get("DOCNO");
+			String line = queryID + " "+ "Q0"+ " "+ docNo+ " "+ (docIndex+1)+ " "+ scoreDoc.score+ " "+ "run-1 \n";
+			fileWriter.append(line);
 
-    String file_path;
+		}
+		
+		fileWriter.flush();
+		fileWriter.close();
+	}
 
-    compareAlgorithms(String file_path, String similarity){
+	public static void top_results(Similarity similarity, String algoName) throws IOException, ParseException
+	{
+		// 1. Read the queries from trec topics
+		TrecTopicsReader trec_reader = new TrecTopicsReader();
+		BufferedReader bufferedReader = new BufferedReader(new FileReader(Intialize.topicPath));
+		QualityQuery[] qualityQueries = trec_reader.readQueries(bufferedReader);
 
-        this.file_path = file_path;
+		
+		//2.Create searcher
+		IndexReader indexReader = DirectoryReader.open(FSDirectory.open(Paths.get(Intialize.indexPath)));
+		IndexSearcher indexSearcher = new IndexSearcher(indexReader);
+		StandardAnalyzer analyzer = new StandardAnalyzer();
+		indexSearcher.setSimilarity(similarity);
+		
+		/* Task-1 : [1] Parsing query using analyzer */
+		QueryParser queryParser = new QueryParser("TEXT", analyzer); 
+		
+		
+		for(int queryIndex=0; queryIndex < qualityQueries.length; queryIndex++)
+		{
+			QualityQuery qual_query = qualityQueries[queryIndex];
+			String queryID = qual_query.getQueryID();
 
-        try {
-            reader = DirectoryReader.open(FSDirectory.open(Paths.get("E:\\IUB\\Search\\Assignment 2\\index\\")));	} catch (IOException e) {
-            e.printStackTrace();
-        }
 
-        indexSearch = new IndexSearcher(reader);
-        setSimilarity(similarity);
+			{
+				String titleStringQuery = qual_query.getValue(Intialize.queryTitle);
+				String cleanedTitleQuery = SearchTRECTTopics.title_cleaning(titleStringQuery);
+				Query titleQuery = queryParser.parse(QueryParserUtil.escape(cleanedTitleQuery));
+				TopDocs topDocs = indexSearcher.search(titleQuery, 1000);
+				String outputFilePath = Intialize.outputDir + "/" + algoName + "ShortQuery" + ".txt";
+				write_files(topDocs, indexSearcher, queryID, outputFilePath);
 
-        analyzer =	new	StandardAnalyzer();
-        parser = new QueryParser("TEXT", analyzer);
+			}
 
-        try {
-            shortDesc = new FileWriter(similarity + "shortQueryResults.txt");
-            longDesc = new FileWriter(similarity + "longQueryResults.txt");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-        try
-        {
-            textReader = new BufferedReader(new FileReader(file_path));
-        }
-        catch (IOException ioexception)
-        {
-            System.out.println("File Not Found");
-        }
-    }
 
-    void setSimilarity(String similarity)
-    {
-        switch(similarity)
-        {
-            case "BM25":
-                indexSearch.setSimilarity(new BM25Similarity());
-                break;
-            case "LMDirichlet":
-                indexSearch.setSimilarity(new LMDirichletSimilarity());
-                break;
-            case "LMJelinekMercer":
-                indexSearch.setSimilarity(new LMJelinekMercerSimilarity((float) 0.7));
-                break;
-            case "Classic":
-                indexSearch.setSimilarity(new ClassicSimilarity());
-                break;
-        }
-    }
+			{
+				String descStringQuery = qual_query.getValue(Intialize.queryDesc);
+				String cleanedDescQuery = SearchTRECTTopics.desc_cleaning(descStringQuery);
+				Query descQuery = queryParser.parse(QueryParserUtil.escape(cleanedDescQuery));
+				TopDocs topDocs = indexSearcher.search(descQuery, 1000);
+				String outputFilePath = Intialize.outputDir + "/" + algoName + "LongQuery" + ".txt";
+				write_files(topDocs, indexSearcher, queryID, outputFilePath);
 
-    public void inputRead()
-    {
-        try
-        {
-            String line = textReader.readLine();
-            boolean start = false;
-            String num = "";
-            String title = "";
-            String desc = "";
+			}
 
-            while (line != null)
-            {
-                if(line.contains(OpenTag))
-                {
-                    start = true;
-                    num = "";
-                    title = "";
-                    desc = "";
-                }
-                while(!line.contains(closeTag) && start)
-                {
-                    if(line.contains("<num>"))
-                    {
-                        while(!(line.contains("<dom>")))
-                        {
-                            num+= line + " ";
-                            line = textReader.readLine();
-                        }
-                    }
-                    if(line.contains("<title>"))
-                    {
-                        while(!(line.contains("<desc>")))
-                        {
-                            title+= line + " ";
-                            line = textReader.readLine();
-                        }
-                    }
-                    if(line.contains("<desc>"))
-                    {
-                        while(!(line.contains("<smry>")))
-                        {
-                            desc+= line + " ";
-                            line = textReader.readLine();
-                        }
-                    }
-                    line = textReader.readLine();
-                }
-                if(line.contains(closeTag))
-                {
-                    start = false;
-                    desc = desc.substring(20).trim();
-                    num = num.substring(14).trim();
-                    title = title.substring(15).trim();
-                    comparison(title,num,"run-short");
-                    comparison(desc,num,"run-long");
-                }
-                line = textReader.readLine();
+
+		}
+		System.out.println("All the queries for " + algoName + "executed successfully");
+	}
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+		try 
+		{
+            BufferedReader indexed = new BufferedReader(new InputStreamReader(System.in));
+            final String classic = "Classic";
+            final String lmdir = "LMDirichlet";
+            final String lmje = "LMJelinek";
+            final String bm25 = "BM25";
+            int Userchoice =1;
+            System.out.println("Enter algorithm choice\n" +
+                    "1: BM25\n" +
+                    "2: LMDirichlet\n" +
+                    "3: LMJelinekMercer\n" +
+                    "4: Classic\n");
+
+            Userchoice = Integer.parseInt(indexed.readLine());
+            switch(Userchoice){
+                case 1: top_results(new BM25Similarity(), bm25); break;
+                case 2: top_results(new LMDirichletSimilarity(), lmdir); break;
+                case 3: top_results(new LMJelinekMercerSimilarity((float) 0.7), lmje); break;
+                case 4: top_results(new ClassicSimilarity(), classic); break;
+                default: break;
             }
-            textReader.close();
+		} 
+		catch (IOException e) {
 
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-    }
+			e.printStackTrace();
+		} 
+		catch (ParseException e) {
 
-    public void comparison(String queryString, String num, String lengthType)
+			e.printStackTrace();
+		}
+	}
 
-    {
-
-        Query query;
-
-        try {
-
-            TopScoreDocCollector ranker = TopScoreDocCollector.create(1000);
-
-            query = parser.parse(queryString);
-
-            indexSearch.search(query, ranker);
-
-
-            ScoreDoc[] docs = ranker.topDocs().scoreDocs;
-
-
-            for(int i = 0; i < docs.length; i++) {
-
-                Document doc = indexSearch.doc(docs[i].doc);
-                String outputline = num +" " + 0 + " "+ doc.get("DOCNO") + " "+ (i+1) + " " +docs[i].score + " " + lengthType + "\n";
-                System.out.println(outputline);
-                write_file(outputline,lengthType);
-
-            }
-
-
-
-        } catch (ParseException | IOException e) {
-
-            e.printStackTrace();
-
-        }
-
-
-    }
-
-
-    private void write_file(String outputline, String lengthType) {
-        try {
-            if(lengthType.equals("run-short"))
-            {
-                shortDesc.append(outputline);
-            }
-            else
-            {
-                longDesc.append(outputline);
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
-
-    public static void main(String[] args) throws IOException {
-        BufferedReader indexed = new BufferedReader(new InputStreamReader(System.in));
-        String query_path;
-        final String classic = "Classic";
-        final String lmdir = "LMDirichlet";
-        final String lmje = "LMJelinekMercer";
-        final String bm25 = "BM25";
-        String simAlgo = classic;
-        int Userchoice =1;
-        query_path = "E:\\IUB\\Search\\Assignment 2\\topics.51-100";
-        System.out.println("Enter algorithm choice" +
-                "1: BM25\n" +
-                "2: LMDirichlet\n" +
-                "3: LMJelinekMercer\n" +
-                "4: Classic\n");
-
-        Userchoice = Integer.parseInt(indexed.readLine());
-        switch(Userchoice){
-            case 1: simAlgo = bm25; break;
-            case 2: simAlgo = lmdir; break;
-            case 3: simAlgo = lmje; break;
-            case 4: simAlgo = classic;
-            default: break;
-        }
-        compareAlgorithms comparison = new compareAlgorithms(query_path,simAlgo);
-        comparison.inputRead();
-        comparison.longDesc.close();
-        comparison.shortDesc.close();
-        comparison.reader.close();
-        System.out.println("files created");
-
-    }
 }
