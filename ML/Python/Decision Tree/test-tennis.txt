@@ -1,2 +1,3 @@
 Sunny,Cool,Normal,Weak
 Rain,Cool,Normal,Weak
+Rain,Cool,Normal,Strong
