@@ -20,3 +20,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# Ipython Check points
+.ipynb_checkpoints
