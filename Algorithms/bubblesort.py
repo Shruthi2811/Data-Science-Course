@@ -14,7 +14,7 @@ def bubblesort(array):
                 no_of_pass +=1
     return (no_of_pass,array)
 def main():
-    lst = [54,26,93,17,77,31,44,55,20]
+    lst = [54,26,93,17,77,31,44,55,20,20]
     total,array = bubblesort(lst)
     print("Total Passes:\t",total)
     print("\nSorted Array:\t",array)
