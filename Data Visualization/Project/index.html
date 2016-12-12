@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+	<meta content="IE=edge" http-equiv="X-UA-Compatible" />
+	<meta content="width=device-width, initial-scale=1" name="viewport" />
+	<meta content="This is Data Visualization Project." name="description" />
+<title>Kobe Bryant</title>
+<meta content="Vipul Munot" name="author" />
+<link href="integration/css/bootstrap.min.css" rel="stylesheet" type="text/css" /><!-- Custom Fonts -->
+<link href="integration/css/style.css" rel="stylesheet" type="text/css" />
+<link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,400italic,700,700italic" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="container">
+<div class="row">
+<h1 class="text-center">Kobe Bryant’s NBA career analysis</h1>
+</div>
+<div class="row text-center"><img src="integration/img/kobe.png"/></div>
+<br/><br/>
+<div class="row">
+<p>
+	Team members: <a href = "http://www.vipulmunot.com/" target="_blank">Vipul Munot </a> <a href = "http://www.anirudhkm.com/" target="_blank">Anirudh Murlidhar </a> <a href = "https://www.linkedin.com/in/siddharthjayasankar" target="_blank">Siddharth Jayasankar </a> 
+</p>
+<h1 class="text-center">Introduction</h1>
+<p class="text-justify">
+Nowadays big data is being used in almost all the domains. Sports informatics and analytics is also venturing into big data to perform in-depth analysis in order to come up with better strategies and team composition. Through this project we would like to would wanted to explore how useful effective visualization of data regarding player’s performance could help develop better strategies and also help the player become better at the sport.
+</p>
+<h1 class="text-center">Abstract</h1>
+<p class="text-justify">
+The aim of this project is to analyze the career of basketball player Kobe Bryant by producing high quality visualizations. This project explores the use of  innovative visualizations for the sport facilitating effective analysis of basketball players .
+</p>
+</div>
+<div class="row">
+<h1 class="text-center">Research Questions</h1>
+<ul><li>Analysis of Kobe Bryant’s strong and weak zones.</li>
+<li>Performance analysis across seasons. </li>
+<li>Performance against various opponents. </li>
+<li>Develop a predictive model to predict if he converted or missed a shot. </li></ul>
+</div>
+<div class="row">
+<iframe src="court chart/scatter_plot.html" width="1300" height="750"></iframe>
+</div>
+<div class="row">
+<iframe src="bar_graph_shot_type/bar_graph.html" width="1300" height="650"></iframe>
+</div>
+<div class="row">
+
+<iframe src="bar graph/bar_graph.html" width="1300" height="650"></iframe>
+</div>
+<div class="row">
+<iframe src="point_type_bar_graph/bar_graph.html" width="1300" height="650"></iframe>
+</div>
+
+<div class="row text-center">
+<iframe src="shot frequency/shot.html" width="1300" height="650"></iframe>
+</div>
+<div class="row">
+
+<h1 class="text-center">Did Kobe perform better during clutch time? Kobe's average field goal rate is 0.447 </h1>
+<img class="img-responsive" src="integration/img/perform.png"  />
+</div>
+<div class="row">
+<h1 class="text-center">Bryant's Accuracy Trend Analysis </h1>
+<img class="img-responsive" src="integration/img/court_6.PNG"  />
+</div>
+<div class="row">
+<h1 class="text-center">Shots Attempted throughtout the game for his whole career. </h1>
+<img class="img-responsive" src="integration/img/hist_1.PNG"  />
+</div>
+<div class="row">
+<h1 class="text-center">Shot distance across all seasons </h1>
+<img class="img-responsive" src="integration/img/scatter_one.PNG"  />
+</div>
+<div class="row">
+	<h1 class="text-center">Predictive Model</h1>
+	<ul><li>Classifier – XGBoost</li>
+<li>Model Parameters -  max_depth=4, n_estimators=600, learning_rate=0.01</li>
+<li>Precision – 69%</li>
+<li>Recall - 68% </li>
+<li>Accuracy – 68.28%</li></ul>
+<img class="img-responsive" src="integration/img/confusion_matrix.PNG" style="max-height: 400px; " />
+</div>
+<div class="row">
+<h1 class="text-center">Observations</h1>
+<ul><li>
+Kobe’s decline started in 2013-2014 Season.</li>
+<li>His accuracy decreases with distance from the basket.</li>
+<li>Kobe attempted more shots during the finishing stages of each period.</li>
+<li>With age he preferred to shoot from distance.</li> 
+<li>Has best conversion rate during period 6 (extra time).</li>
+<li>Performed more dunks and layups in his early career.</li>
+<li>Kobe missed more shots than he converted.</li>
+<li>The predictive model (XG-Boost) has an accuracy of only around 68%, implying that Kobe was not very consistent with his shooting.</li>
+<li>The model predicted shots missed better than hits.</li></ul>
+
+</div>
+</div>
+<script src="integration/js/jquery.js"></script><!-- Bootstrap Core JavaScript --><script src="integration/js/bootstrap.min.js"></script>
+</body>
+
+</html>

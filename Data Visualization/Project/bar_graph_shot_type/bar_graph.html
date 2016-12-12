@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,400italic,700,700italic" rel="stylesheet" type="text/css" />
+<style>
+body{font-family: "Ubuntu Mono",'Helvetica Neue',Arial,sans-serif;}
+.axis text {
+  font: 10px sans-serif;
+}
+
+.axis line,
+.axis path {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.axis--x path {
+  display: none;
+}
+
+</style>
+</head>
+
+<body style = "text-align:center">
+<h1 style = "text-align:center">Kobe Bryant's shot type usage across seasons</h1>  
+<div id ="drop">
+<b>Seasons:</b>
+</div>
+<p id = "text_season"></p>
+<script src="//d3js.org/d3.v3.min.js"></script>
+<script>
+
+var causes = ["Bank Shot", "Dunk", "Hook Shot", "Jump Shot", "Layup", "Tip Shot"];
+
+var margin = {top: 40, right: 50, bottom: 50, left: 55},
+    width = 960 - margin.left - margin.right + 230,
+    height = 500 - margin.top - margin.bottom;
+
+var x = d3.scale.ordinal()
+    .rangeRoundBands([0, width]);
+
+var y = d3.scale.linear()
+    .rangeRound([height, 0]);
+
+var z = d3.scale.category10();
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+	
+var axisScale = d3.scale.linear()
+                         .domain([0,1.1])
+                         .range([height, 0]);
+						 
+var yAxis = d3.svg.axis()
+    .scale(axisScale)
+    .orient("left");
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var years = [1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015];
+var options = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+// Build the dropdown menu
+d3.select("#drop")
+		.append("select")
+		.selectAll("option")
+		.data(options)
+		.enter()
+		.append("option")
+		// Provide available text for the dropdown options
+		.text(function(d) {return years[d];})
+		
+var legend = svg.selectAll(".legend")
+      .data(causes)
+	  .enter().append("g")
+      .attr("class", "legend")
+      .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+  // draw legend colored rectangles
+  legend.append("rect")
+      .attr("x", width)
+      .attr("width", 18)
+      .attr("height", 18)
+      .style("fill", d3.scale.category10());
+		
+d3.csv("action_type.csv", type, function(error, datum) {
+  if (error) throw error;
+  
+    temp = datum.filter(function(row) {
+        return row['year'] == 1996;
+    })
+    
+  var layers = d3.layout.stack()(causes.map(function(c) {
+    return temp.map(function(d) {
+      return {x: d.opponent, y: d[c]};
+    });
+  }));
+
+  x.domain(layers[0].map(function(d) { return d.x; }));
+  y.domain([0, d3.max(layers[layers.length - 1], function(d) { return d.y0 + d.y; })]).nice();
+
+  var layer = svg.selectAll(".layer")
+      .data(layers)
+    .enter().append("g")
+      .attr("class", "layer")
+      .style("fill", function(d, i) { return z(i); });
+
+  var layer2 = layer.selectAll("rect")
+      .data(function(d) { return d; })
+		 .enter().append("rect")
+      .attr("x", function(d) { return x(d.x); })
+      .attr("y", function(d) { return y(d.y + d.y0); })
+      .attr("height", 0)
+      .attr("width", x.rangeBand() - 1);
+	  
+	   layer2.transition()
+	  .duration(2000)
+	  .attr("height", function(d) { return y(d.y0) - y(d.y + d.y0); });
+	  
+	var texts = svg.selectAll("text")
+				.data([1])
+				.enter()
+				.append("text")
+				.text(1996)
+				.transition()
+				.duration(5000)
+				.attr("x", 910)
+				.attr("y", 350)
+				.attr("font-family", "sans-serif")
+				.attr("font-size", "100")
+				.attr("fill", "grey")
+				.attr("opacity", 0.3);
+				
+	svg.append("text")
+	.attr("x", width/2)
+	.attr("y", height + 40)
+	.text("Opponents");
+	
+  svg.append("text")
+	.attr("x", margin.left - 300)
+	.attr("y", -40)
+	.attr("transform", "rotate(-90)")
+	.text("Percentage of shots used");
+	  
+
+  svg.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg.append("g")
+   .attr("class", "y axis")
+   .attr("transform", "translate(" + (margin.left-65) +",0)")
+   .call(yAxis);
+   
+   legend.append("text")
+      .attr("x", width - 4)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .style("text-anchor", "end")
+      .text(function(d) { return d;})
+	
+   d3.select("select")
+				.on("change", function(){
+				key = this.selectedIndex;
+				temp = datum.filter(function(row) {
+				return row['year'] == years[key];
+    })
+	
+				var layers = d3.layout.stack()(causes.map(function(c) {
+    return temp.map(function(d) {
+      return {x: d.opponent, y: d[c]};
+    });
+  }));
+
+  x.domain(layers[0].map(function(d) { return d.x; }));
+  y.domain([0, d3.max(layers[layers.length - 1], function(d) { return d.y0 + d.y; })]).nice();
+  
+  svg.selectAll(".layer").remove();
+  
+  var layer = svg.selectAll(".layer")
+      .data(layers)
+    .enter().append("g")
+      .attr("class", "layer")
+      .style("fill", function(d, i) { return z(i); });
+
+	svg.selectAll("text").remove();
+  var layer2 = layer.selectAll("rect")
+      .data(function(d) { return d; })
+	  .enter().append("rect")
+      .attr("x", function(d) { return x(d.x); })
+      .attr("y", function(d) { return y(d.y + d.y0); })
+      .attr("height", 0)
+      .attr("width", x.rangeBand() - 1); 
+	  
+	  layer2.transition().duration(2000)
+			.attr("height", function(d) { return y(d.y0) - y(d.y + d.y0); });
+	console.log(years[key]);
+	
+	var texts = svg.selectAll("text")
+				.data([1])
+				.enter()
+				.append("text")
+				.text(years[key])
+				.transition()
+				.duration(5000)
+				.attr("x", 910)
+				.attr("y", 350)
+				.attr("font-family", "sans-serif")
+				.attr("font-size", "100")
+				.attr("fill", "grey")
+				.attr("opacity", 0.3);
+	
+	svg.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg.append("g")
+   .attr("class", "y axis")
+   .attr("transform", "translate(" + (margin.left-65) +",0)")
+   .call(yAxis);
+   
+   svg.append("text")
+	.attr("x", width/2)
+	.attr("y", height + 40)
+	.text("Opponents");
+	
+  svg.append("text")
+	.attr("x", margin.left - 300)
+	.attr("y", -40)
+	.attr("transform", "rotate(-90)")
+	.text("Percentage of shots used");
+   
+   legend.append("text")
+      .attr("x", width -4)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .style("text-anchor", "end")
+      .text(function(d) { return d;})
+	
+				});
+	
+   
+});
+
+function type(d) {
+  causes.forEach(function(c) { d[c] = +d[c]; });
+  return d;
+}
+
+</script>
+</body>

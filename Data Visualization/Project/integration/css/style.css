@@ -1,0 +1,9 @@
+@charset "utf-8";
+
+body{background-color: #f7f7f7;
+	font-family: "Ubuntu Mono",'Helvetica Neue',Arial,sans-serif;}
+iframe:not([seamless]) { border:none; } 
+img {
+    display: block;
+    margin: 0 auto;
+}
