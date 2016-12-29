@@ -1,3 +1,5 @@
 # Data Scientist Certification
 
-All the codes here are part of exercises I have completed in order to achieve Dataquest.io Data Scientist Certificate 
+All the codes here are part of Data Analysis of different datasets using Python.
+* Python, Beginner to Advanced
+* Machine Learning
